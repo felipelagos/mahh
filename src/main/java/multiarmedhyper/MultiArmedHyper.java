@@ -35,11 +35,13 @@ public class MultiArmedHyper {
         boolean typeDouble = false;
         boolean limTimeNumberOfNodes = false;
         int ejec = 1;
+        Integer seed = null;
         
         // configuation
         double delta = 0.025;
         double eta = 2.0;
         double alpha = -1.0;
+        double beta = -1.0;
         
         // process arguments
         for (String arg : args) {
@@ -93,12 +95,21 @@ public class MultiArmedHyper {
                                 + e.toString());
                     }
                     break;
+                case "--seed=": 
+                    try {
+                        seed = Integer.parseInt(parameter);
+                    }
+                    catch (NumberFormatException e) {
+                        throw new AssertionError("Seed integer incorrect.\n" 
+                                + e.toString());
+                    }
+                    break;
                 case "--ejec=": 
                     try {
                         ejec = Integer.parseInt(parameter);
                     }
                     catch (NumberFormatException e) {
-                        throw new AssertionError("Type parameter wrong.\n" 
+                        throw new AssertionError("Execution parameter incorrect.\n" 
                                 + e.toString());
                     }
                     break;
@@ -107,7 +118,7 @@ public class MultiArmedHyper {
                         limtime = Double.parseDouble(parameter);
                     }
                     catch (NumberFormatException e) {
-                        throw new AssertionError("Runing time parameters wrong.\n" 
+                        throw new AssertionError("Runing time incorrect.\n" 
                                 + e.toString());
                     }
                     limTimeNumberOfNodes = false;
@@ -117,7 +128,7 @@ public class MultiArmedHyper {
                         limIter = Integer.parseInt(parameter);
                     }
                     catch (NumberFormatException e) {
-                        throw new AssertionError("Runing time parameters wrong.\n" 
+                        throw new AssertionError("Iterations limit incorrect.\n" 
                                 + e.toString());
                     }
                     limTimeNumberOfNodes = false;
@@ -127,7 +138,7 @@ public class MultiArmedHyper {
                         delta = Double.parseDouble(parameter);
                     }
                     catch (NumberFormatException e) {
-                        throw new AssertionError("Type parameter wrong.\n" 
+                        throw new AssertionError("Delta parameter wrong.\n" 
                                 + e.toString());
                     }
                     break;
@@ -136,7 +147,7 @@ public class MultiArmedHyper {
                         eta = Double.parseDouble(parameter);
                     }
                     catch (NumberFormatException e) {
-                        throw new AssertionError("Type parameter wrong.\n" 
+                        throw new AssertionError("Eta parameter wrong.\n" 
                                 + e.toString());
                     }
                     break;
@@ -145,10 +156,46 @@ public class MultiArmedHyper {
                         alpha = Double.parseDouble(parameter);
                     }
                     catch (NumberFormatException e) {
-                        throw new AssertionError("Type parameter wrong.\n" 
+                        throw new AssertionError("Alpha parameter wrong.\n" 
                                 + e.toString());
                     }
                     break;
+                case "--beta=": 
+                    try {
+                        beta = Double.parseDouble(parameter);
+                    }
+                    catch (NumberFormatException e) {
+                        throw new AssertionError("Beta parameter wrong.\n" 
+                                + e.toString());
+                    }
+                    break;
+                case "--help":
+                    System.out.println("\nMulti-Armed Bandit Hyper Heuristics "
+                            + "for the Vehicle Routing Problem with Time Windows\n"
+                            + "usage: java -jar runhyper [options]\n\n"
+                            + "Options:\n"
+                            + "--file=<arg>\t\t\t Input file instance. The file must follow the Solomon instances' structure.\n" 
+                            + "--instance=<arg>\t\t Instance name when using DB postgresql.\n"
+                            + "--host=<arg>\t\t\t Parameters for DB postgresql connection (host:port/database).\n"
+                            + "--user=<arg>\t\t\t User for DB postgresql connection.\n"
+                            + "--pass=<arg>\t\t\t Password for DB postgresql connection.\n"
+                            + "--text\t\t\t\t The program runs printing the output in the terminal.\n"
+                            + "--no-text\t\t\t The program runs printing nothing in the terminal.\n"
+                            + "--one-digit\t\t\t Instance matrix distance is computed truncating the first decimal digit.\n"
+                            + "--doble-pres\t\t\t Instance matrix distance is computed rounding to the second decimal digit.\n"
+                            + "--auto-time\t\t\t Running time is defined according to the number of customers.\n"
+                            + "--type=<arg>\t\t\t MAHH algorithm. ExpoHyper[0]; KheiriHyper[1]; KheiriHyperAll[2]; "
+                            + "ThompsonHyper[3]; ExpoRecord[4]; ALNS[5]; ANLS+[6]; test algorithms[7-11].\n"
+                            + "--seed=<arg>\t\t\t Long (integer) for random seed.\n"
+                            + "--ejec=<arg>\t\t\t Integer for algorithm execution number for computational study. \n"
+                            + "--time=<arg>\t\t\t Running time limit in seconds. \n"
+                            + "--iterations=<arg>\t\t Integer for iterations limit.\n"
+                            + "--delta=<arg>\t\t\t Numeric value for delta parameter. This parameter determines the acceptance solution tolerance.\n"
+                            + "--eta=<arg>\t\t\t Numeric value for eta parameter for Expo Hyper algorithms (learning rate).\n"
+                            + "--alpha=<arg>\t\t\t Numeric value for alpha parameter for Expo Hyper algorithms (minimum transition probability).\n"
+                            + "--beta=<arg>\t\t\t Numeric value for beta parameter for Expo Hyper algorithms (minimum acceptance probability).\n"
+                            + "--help\t\t\t\t Display help information.");
+                    System.exit(0);
                 default:
                     throw new AssertionError("Incorrect option.");
             }
@@ -213,8 +260,11 @@ public class MultiArmedHyper {
         algorithm.setDelta(delta);
         if (algorithm instanceof ExpoHyper || algorithm instanceof ExpoHyperRecord) {
             ((ExpoHyper) algorithm).setEta(eta);
-            if (alpha > 0) {
+            if (alpha > 0 && alpha < 1) {
                 ((ExpoHyper) algorithm).setAlpha(alpha);
+            }
+            if (beta > 0 && beta < 1) {
+                ((ExpoHyper) algorithm).setBeta(beta);
             }
         }
         
@@ -262,8 +312,11 @@ public class MultiArmedHyper {
         }
         
         // set algorithm and solve
-        algorithm.setSeed(type * 10000 + (int) Math.floor(delta * 1000) 
-                + (int) Math.floor(eta * 100) + ejec + instance.hashCode());
+        if (seed == null) {
+            seed = type * 10000 + (int) Math.floor(delta * 1000) 
+                    + (int) Math.floor(eta * 100) + ejec + instance.hashCode();
+        }
+        algorithm.setSeed(seed);
         algorithm.setOutput(text);
         algorithm.solve();
         
