@@ -1,6 +1,6 @@
 # Multi-Armed Bandit-Based Hyper-Heuristics for Combinatorial Optimization Problems
 
-This repository contains the source code and instances of the paper [Multi-Armed Bandit-Based Hyper-Heuristics for Combinatorial Optimization Problems] by F. Lagos and J. Pereira.
+This repository contains the source code and instances of the paper [Multi-Armed Bandit-Based Hyper-Heuristics for Combinatorial Optimization Problems] by F. Lagos and J. Pereira (https://doi.org/10.1016/j.ejor.2023.06.016).
 
 Case study: The Vehicle Routing Problem with Time Windows (VRPTW).
 
@@ -43,3 +43,16 @@ java -jar target/runhyper.jar --help
 
 The code contains all the algorithms and cases studied in the paper. The parameters used can be found in the paper, along with the computational configuration considered.
 
+## How to cite
+
+```bibtex
+@article{lagos2023multi,
+title = {Multi-armed bandit-based hyper-heuristics for combinatorial optimization problems},
+journal = {European Journal of Operational Research},
+year = {2023},
+issn = {0377-2217},
+doi = {https://doi.org/10.1016/j.ejor.2023.06.016},
+url = {https://www.sciencedirect.com/science/article/pii/S0377221723004678},
+author = {Felipe Lagos and Jordi Pereira}
+}
+```
