@@ -1904,7 +1904,8 @@ public class Solution {
                 Set<Integer> col = new HashSet<>(cost.rowKeySet());
                 indexes.add(location);
                 for (Integer node : col) {
-                    if (cost.get(node, location) < constFeas) {
+                    if (cost.contains(node, location) 
+                            && cost.get(node, location) < constFeas) {
                         cost.remove(node, location);
                     }
                 }
