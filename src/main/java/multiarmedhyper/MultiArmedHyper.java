@@ -26,6 +26,7 @@ public class MultiArmedHyper {
         String[] dataConn = new String[3];
         String instance = "R110_6";
         String file = "instances/gehring/R110_6.TXT";
+        String matFile = null;
         
         // algorithm parameters
         int type = 0;
@@ -57,6 +58,10 @@ public class MultiArmedHyper {
             switch (set) {
                 case "--file=": 
                     file = parameter;
+                    text = true;
+                    break;
+                case "--matrix=": 
+                    matFile = parameter;
                     text = true;
                     break;
                 case "--instance=": 
@@ -175,6 +180,7 @@ public class MultiArmedHyper {
                             + "usage: java -jar runhyper [options]\n\n"
                             + "Options:\n"
                             + "--file=<arg>\t\t\t Input file instance. The file must follow the Solomon instances' structure.\n" 
+                            + "--matrix=<arg>\t\t\t Input file distance matrix.\n" 
                             + "--instance=<arg>\t\t Instance name when using DB postgresql.\n"
                             + "--host=<arg>\t\t\t Parameters for DB postgresql connection (host:port/database).\n"
                             + "--user=<arg>\t\t\t User for DB postgresql connection.\n"
@@ -210,6 +216,11 @@ public class MultiArmedHyper {
         } 
         param.setDistanceType(typeDouble);
         param.read();
+        
+        // distance matrix
+        if (param instanceof InstanceReader && matFile != null) {
+            ((InstanceReader) param).setDistanceMatrix(matFile);
+        }
         
         // set algorithm 
         Algorithm algorithm;

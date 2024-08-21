@@ -1,11 +1,14 @@
 package multiarmedhyper.data;
 
+import com.google.common.collect.HashBasedTable;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 public class InstanceReader extends ParameterReader {
@@ -109,6 +112,36 @@ public class InstanceReader extends ParameterReader {
         }
         
         return true;
+    }
+    
+    public void setDistanceMatrix(String csv) {
+        
+        try {
+            
+            // all indexes
+            Set<Integer> nodes = new HashSet<>();
+            nodes.addAll(positions.keySet());
+
+            // create a matrix with all distances
+            time = HashBasedTable.create();
+            
+            // read file
+            BufferedReader buffer = new BufferedReader(new FileReader(csv));
+            String line;
+            for (int i1 = 0; (line = buffer.readLine()) != null; i1++) {
+                StringTokenizer token = new StringTokenizer(line, ";");
+                for (int i2 = 0; token.hasMoreTokens(); i2++) {
+                    double dist = Double.parseDouble(token.nextToken());
+                    
+                    if (nodes.contains(i1) && nodes.contains(i2)) {
+                        time.put(i1, i2, dist);
+                    }
+                }
+            }
+            
+        } catch (IOException e) {
+            throw new AssertionError("Reading matrix file error.\n" + e.toString());
+        }
     }
     
     @Override
